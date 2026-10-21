@@ -1,0 +1,31 @@
+name: probe
+
+on:
+  workflow_dispatch:
+  # Runner images roll out over days, so check a few times a day.
+  schedule:
+    - cron: '23 */6 * * *'
+
+permissions: {}
+
+jobs:
+  probe:
+    name: probe (${{ matrix.runner }})
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - ubuntu-24.04
+          - ubuntu-26.04
+          - ubuntu-24.04-arm
+          - ubuntu-26.04-arm
+          - ubuntu-slim
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: .github/scripts/probe.sh
